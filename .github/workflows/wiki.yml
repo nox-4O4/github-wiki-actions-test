@@ -1,0 +1,32 @@
+name: Verify Wiki Sidebar Content
+
+on:
+  # Triggers when someone creates or updates a wiki page
+  gollum:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  validator:
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Checkout wiki repository
+        uses: actions/checkout@v2
+        with:
+          repository: "${{ github.repository }}.wiki"
+          ref: master
+          path: .wiki
+
+      - name: Check if sidebar exists
+        run: test -f .wiki/_Sidebar.md
+
+      - name: Render sidebar
+        working-directory: .wiki
+        run: |
+          echo '{"mode":"gfm","context":"${{ github.repository }}"}' | jq --arg content "$(<_Sidebar.md)" '.|.text=$content' > payload &&
+          curl -X POST \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               --data @payload \
+               https://api.github.com/markdown
