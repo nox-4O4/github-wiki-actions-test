@@ -24,7 +24,7 @@ jobs:
       - name: Render sidebar
         working-directory: .wiki
         run: |
-          echo '{"mode":"gfm","context":"${{ github.repository }}"}' | jq --arg content "$(<_Sidebar.md)" '.|.text=$content' > payload &&
+          echo '{"mode":"gfm","context":"${{ github.repository }}.wiki"}' | jq --arg content "$(<_Sidebar.md)" '.|.text=$content' > payload &&
           curl -X POST \
                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -H "Accept: application/vnd.github.v3+json" \
